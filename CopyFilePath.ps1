@@ -1,7 +1,10 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [string]$Path
+    [string]$EncodedPath
 )
 
 $ErrorActionPreference = 'Stop'
-Set-Clipboard -Value $Path
+
+$bytes = [Convert]::FromBase64String($EncodedPath)
+$path = [Text.Encoding]::UTF8.GetString($bytes)
+Set-Clipboard -Value $path

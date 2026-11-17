@@ -46,6 +46,9 @@ powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
 - 注册表位置：`HKCU\Software\Classes\*\shell\CopyFilePath`（仅当前用户，不需要管理员）
 - 菜单命令：`wscript.exe "<本目录>\CopyFilePath.vbs" "%1"`
 - `wscript.exe` 属于 GUI 子系统，由资源管理器启动时不会创建控制台窗口；VBS 再以隐藏窗口方式调用 PowerShell 完成剪贴板写入。这样避免了直接启动 `powershell.exe` 时 `conhost` 一闪而过的问题。
+- 路径不直接拼进命令行，而是先做 **UTF-8 Base64**；整条 PowerShell 命令再以 **UTF-16LE Base64** 通过 `-EncodedCommand` 传入。因此文件名含 `%变量%`、`'`、空格、中文、`&` 等字符时都能原样复制，不会被环境变量展开或命令行解析改写。
+- VBS 用 `WScript.Quit` 回传 PowerShell 的退出码，脚本失败时不再是静默的「假成功」。
+- `install.ps1` 保存为 UTF-8 with BOM，保证 Windows PowerShell 5.1 下中文菜单名不乱码。
 
 ## 适用范围
 

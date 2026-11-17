@@ -1,10 +1,8 @@
-param(
-    [Parameter(Mandatory = $true, Position = 0)]
-    [string]$EncodedPath
-)
-
 $ErrorActionPreference = 'Stop'
 
-$bytes = [Convert]::FromBase64String($EncodedPath)
-$path = [Text.Encoding]::UTF8.GetString($bytes)
+$path = [Environment]::GetEnvironmentVariable('WB_CFP_TARGET')
+if ([string]::IsNullOrEmpty($path)) {
+    throw 'WB_CFP_TARGET is not set'
+}
+
 Set-Clipboard -Value $path

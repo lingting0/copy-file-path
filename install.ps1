@@ -7,13 +7,19 @@ if (-not (Test-Path -LiteralPath $vbsPath)) {
     throw "CopyFilePath.vbs not found next to install.ps1: $vbsPath"
 }
 
-$menuKey = 'HKCU:\Software\Classes\*\shell\CopyFilePath'
-$cmdKey = Join-Path $menuKey 'command'
+$menuName = '复制文件路径(&P)'
 $cmdLine = "wscript.exe `"$vbsPath`" `"%1`""
 
-New-Item -Path $menuKey -Force -Value '复制文件路径(&P)' | Out-Null
-New-Item -Path $cmdKey -Force -Value $cmdLine | Out-Null
+$menuKeys = @(
+    'HKCU:\Software\Classes\*\shell\CopyFilePath',
+    'HKCU:\Software\Classes\Directory\shell\CopyFilePath'
+)
 
-Write-Host "Installed. Menu item: 复制文件路径(&P)"
+foreach ($menuKey in $menuKeys) {
+    New-Item -Path $menuKey -Force -Value $menuName | Out-Null
+    New-Item -Path (Join-Path $menuKey 'command') -Force -Value $cmdLine | Out-Null
+}
+
+Write-Host "Installed for files and folders. Menu item: $menuName"
 Write-Host "Launcher: $vbsPath"
 Write-Host "Note: keep this folder in place; moving or deleting it will break the menu item."

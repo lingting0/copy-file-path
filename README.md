@@ -4,13 +4,17 @@
 
 ## 效果
 
-右键 `D:\文档\报告.pdf` → 「复制文件路径」，剪贴板得到：
+右键 `D:\文档\报告.pdf` 或右键文件夹 `D:\文档` → 「复制文件路径」，剪贴板得到：
 
 ```
 D:\文档\报告.pdf
 ```
+或
+```
+D:\文档
+```
 
-- 不带引号，不带尾部换行
+- 文件和文件夹都支持；不带引号，不带尾部换行
 - 中文、空格、特殊字符均正常
 - 执行过程完全静默，不闪控制台窗口
 
@@ -43,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
 
 ## 实现原理
 
-- 注册表位置：`HKCU\Software\Classes\*\shell\CopyFilePath`（仅当前用户，不需要管理员）
+- 注册表位置：`HKCU\Software\Classes\*\shell\CopyFilePath`（文件）和 `HKCU\Software\Classes\Directory\shell\CopyFilePath`（文件夹），均为当前用户，不需要管理员
 - 菜单命令：`wscript.exe "<本目录>\CopyFilePath.vbs" "%1"`
 - `wscript.exe` 属于 GUI 子系统，由资源管理器启动时不会创建控制台窗口；VBS 再以隐藏窗口方式调用 PowerShell 完成剪贴板写入。这样避免了直接启动 `powershell.exe` 时 `conhost` 一闪而过的问题。
 - 路径不直接拼进命令行，而是先做 **UTF-8 Base64**；整条 PowerShell 命令再以 **UTF-16LE Base64** 通过 `-EncodedCommand` 传入。因此文件名含 `%变量%`、`'`、空格、中文、`&` 等字符时都能原样复制，不会被环境变量展开或命令行解析改写。
@@ -53,5 +57,5 @@ powershell -ExecutionPolicy Bypass -File .\uninstall.ps1
 ## 适用范围
 
 - Windows 10 / 11（依赖 PowerShell 5.1 的 `Set-Clipboard`）
-- 仅对**文件**生效；文件夹右键暂不添加
+- 对**文件和文件夹**生效；文件夹空白处右键暂不添加
 - 纯本地操作，不联网、不收集任何数据

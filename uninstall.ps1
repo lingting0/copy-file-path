@@ -1,10 +1,15 @@
 $ErrorActionPreference = 'Stop'
 
-$menuKey = 'HKCU:\Software\Classes\*\shell\CopyFilePath'
+$menuKeys = @(
+    'HKCU:\Software\Classes\*\shell\CopyFilePath',
+    'HKCU:\Software\Classes\Directory\shell\CopyFilePath'
+)
 
-if (Test-Path -LiteralPath $menuKey) {
-    Remove-Item -LiteralPath $menuKey -Recurse -Force
-    Write-Host "Removed context menu item."
-} else {
-    Write-Host "Nothing to remove."
+foreach ($menuKey in $menuKeys) {
+    if (Test-Path -LiteralPath $menuKey) {
+        Remove-Item -LiteralPath $menuKey -Recurse -Force
+        Write-Host "Removed: $menuKey"
+    }
 }
+
+Write-Host 'Done.'
